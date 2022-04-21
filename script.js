@@ -13,10 +13,7 @@ const Gameboard = (() => {
             updateDisplay();
             item[i].removeEventListener('click', listener);
         })
-
-
     }};
-    addListeners();
 
     function updateDisplay() {
         for (let i = 0; i < gb.length; i++) {
@@ -37,14 +34,14 @@ const Gameboard = (() => {
 })();
 
 const Player = (name, marker) => {
-    const placeMarker = (event) => Gameboard.getGb()[event.target.dataset.index] = marker
-    const checkWin = () => {
+    const placeMarker = (event) => Gameboard.getGb()[event.target.dataset.index] = marker;
+    function checkWin() {
         // horizontal
         for (let x = 0; x <= 8; x += 3) { 
             let y = x + 1;
             let z = x + 2;
             if (Gameboard.getGb()[x] !== '' && Gameboard.getGb()[x] == Gameboard.getGb()[y] && Gameboard.getGb()[y] == Gameboard.getGb()[z]) {
-                Game.gameOver(name);
+                Game.gameOver(this.name);
                 return
             }
         }
@@ -53,29 +50,30 @@ const Player = (name, marker) => {
             let y = x + 3;
             let z = y + 3;
             if (Gameboard.getGb()[x] !== '' && Gameboard.getGb()[x] == Gameboard.getGb()[y] && Gameboard.getGb()[y] == Gameboard.getGb()[z]) {
-                Game.gameOver(name);
+                Game.gameOver(this.name);
                 return
             }
         }
         // cross
         if (Gameboard.getGb()[2] !== '' && Gameboard.getGb()[2] == Gameboard.getGb()[4] && Gameboard.getGb()[4] == Gameboard.getGb()[6]) {
-            Game.gameOver(name);
+            Game.gameOver(this.name);
             return
-        } else if (Gameboard.getGb()[0] !== '' && Gameboard.getGb()[0] == Gameboard.getGb()[4] && Gameboard.getGb()[4] == Gameboard.getGb()[8]) {
-            Game.gameOver(name);
+        }
+        if (Gameboard.getGb()[0] !== '' && Gameboard.getGb()[0] == Gameboard.getGb()[4] && Gameboard.getGb()[4] == Gameboard.getGb()[8]) {
+            Game.gameOver(this.name);
             return
         }
         // tie
-        if (Game.getTurn() == 9) Game.gameOver('Tie')
+        if (Game.getTurn() == 9) Game.gameOver()
     }
-    const getName = () => name
 
-    return { placeMarker, checkWin, getName }
+    return { placeMarker, checkWin, name }
 }
-const playerOne = Player('wow', 'O')
-const playerTwo = Player('bop', 'X')
 
 const Game = (() => {
+    const playerOne = Player('', 'O')
+    const playerTwo = Player('', 'X')
+
     let turn = 0;
     const getTurn = () => turn;
 
@@ -92,23 +90,39 @@ const Game = (() => {
             item.parentNode.replaceChild(clone, item)
         }
 
+        const gameoverMsg = document.querySelector('#gameover-msg')
         switch (name) {
-            case playerOne.getName():
-                console.log(`${playerOne.getName()} won!`)
+            case playerOne.name:
+                gameoverMsg.textContent = `${playerOne.name} is the Winner!`
                 break
-            case playerTwo.getName():
-                console.log(`${playerTwo.getName()} won!`)
+            case playerTwo.name:
+                gameoverMsg.textContent = `${playerTwo.name} is the Winner!`
                 break
-            case 'Tie':
-                console.log('It\'s a Tie!')
+            default:
+                gameoverMsg.textContent = `It\s a Tie!`
                 break
         }
+
     }
     const newGame = () => {
         Gameboard.reset();
         Gameboard.addListeners();
-        turn = 0
-    }
+        turn = 0;
 
-    return { getTurn, gameOneTurn, gameOver, newGame }
+        const playerOneName = document.querySelector('.player-one #name')
+        const playerTwoName = document.querySelector('.player-two #name')
+
+        if (!(playerOneName.value)) playerOneName.value = 'P1';
+        playerOne.name = playerOneName.value;
+        if (!(playerTwoName.value)) playerTwoName.value = 'P2';
+        playerTwo.name = playerTwoName.value;
+
+        const gameoverMsg = document.querySelector('#gameover-msg')
+        gameoverMsg.textContent = ''
+    }
+    
+    const newGameBtn = document.querySelector('#new-game-btn')
+    newGameBtn.addEventListener('click', newGame)
+
+    return { getTurn, gameOneTurn, gameOver }
 })();
