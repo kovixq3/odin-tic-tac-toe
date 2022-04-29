@@ -78,11 +78,13 @@ const Game = (() => {
     const getTurn = () => turn;
 
     const gameOneTurn = (event) => {
-        turn ++;
+        turn += 1;
         turn % 2 == 1 ? playerOne.placeMarker(event) : playerTwo.placeMarker(event);
         turn % 2 == 1 ? playerOne.checkWin() : playerTwo.checkWin();
     }
     const gameOver = (name) => {
+        newGameBtn.disabled = false;
+
         // remove all listener by clone-ing them and replace them with their clone
         for (let i = 0; i < Gameboard.getGbItem().length; i++) {
             let item = Gameboard.getGbItem()[i]
@@ -117,8 +119,10 @@ const Game = (() => {
         if (!(playerTwoName.value)) playerTwoName.value = 'P2';
         playerTwo.name = playerTwoName.value;
 
-        const gameoverMsg = document.querySelector('#gameover-msg')
-        gameoverMsg.textContent = ''
+        const gameoverMsg = document.querySelector('#gameover-msg');
+        gameoverMsg.textContent = '';
+
+        newGameBtn.disabled = true;
     }
     
     const newGameBtn = document.querySelector('#new-game-btn')
